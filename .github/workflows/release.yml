@@ -1,0 +1,25 @@
+name: Release
+
+# 推送 v* 标签时，用仓库 release/ 目录下已构建好的产物创建 GitHub Release。
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: 发布产物
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 校验产物校验和
+        run: cd release && sha256sum -c SHA256SUMS.txt
+
+      - name: 创建 Release 并上传产物
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: true
