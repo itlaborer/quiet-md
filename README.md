@@ -1,30 +1,23 @@
-<h1 align="center">quiet.md</h1>
+<h1 align="center">quiet-md</h1>
 
 <p align="center">
   <b>一个又快又安静的本地笔记应用。</b><br>
-  Rust + GPUI 原生绘制，笔记全部存在你的电脑上，兼容飞书文档的 DocxXML 格式。
+  Rust + GPUI 原生绘制，笔记全部存在你的电脑上，兼容飞书文档的 DocxXML 格式。<br>
+  基于 <a href="https://github.com/s1dashu/quiet-md">s1dashu/quiet-md</a>（MIT）修改，新增 Linux 适配、文本 / PDF 导出、四协议同步等功能。
 </p>
 
 <p align="center">
-  <a href="https://github.com/s1dashu/quiet-md/releases/latest"><img src="https://img.shields.io/github/v/release/s1dashu/quiet-md?label=release&color=2f6feb" alt="最新版本"></a>
-  <a href="https://github.com/s1dashu/quiet-md/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/s1dashu/quiet-md/ci.yml?branch=main&label=CI" alt="CI 状态"></a>
-  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey" alt="支持 macOS 和 Windows">
+  <img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey" alt="支持 Windows 和 Linux">
   <img src="https://img.shields.io/badge/built%20with-Rust%20%2B%20GPUI-dea584?logo=rust" alt="使用 Rust 和 GPUI 构建">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/s1dashu/quiet-md?color=green" alt="MIT 许可"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/itlaborer/quiet-md?color=green" alt="MIT 许可"></a>
   <img src="https://img.shields.io/badge/status-beta-orange" alt="Beta">
 </p>
 
 <p align="center">
-  <a href="https://download.quiet.md/latest/quiet-md-macos-arm64.zip"><img src="docs/images/download-macos.svg" height="56" alt="下载 macOS 版"></a>
-  &nbsp;
-  <a href="https://download.quiet.md/latest/quiet-md-windows-x64-setup.exe"><img src="docs/images/download-windows.svg" height="56" alt="下载 Windows 版"></a>
-</p>
-
-<p align="center">
-  <a href="https://quiet.md"><b>官网</b></a> ·
   <a href="#下载"><b>下载</b></a> ·
-  <a href="#性能">性能</a> ·
+  <a href="#本版新增"><b>本版新增</b></a> ·
   <a href="#功能">功能</a> ·
+  <a href="#性能">性能</a> ·
   <a href="CONTRIBUTING.md">参与开发</a>
 </p>
 
@@ -33,35 +26,41 @@
 </p>
 
 > [!NOTE]
-> quiet.md 目前是 **Beta 版本**，还在快速迭代。遇到 bug 或有想法，欢迎[提 issue](https://github.com/s1dashu/quiet-md/issues)，更欢迎直接提 PR，一起把它打磨好。
+> 本仓库是 [s1dashu/quiet-md](https://github.com/s1dashu/quiet-md) 的修改版，目前同样是 **Beta 版本**。遇到 bug 或有想法，欢迎[提 issue](https://github.com/itlaborer/quiet-md/issues)。原版 macOS 安装包请到[原项目 Releases](https://github.com/s1dashu/quiet-md/releases/latest) 下载。
 
-## 为什么是 quiet.md
+## 本版新增
 
-**⚡ 快，原生的那种快。** 整个界面由 Rust 和 [GPUI](https://www.gpui.rs/) 直接用 GPU 绘制，没有 WebView、没有 Electron。百万字文档实测中，输入、删除和滚动的帧处理 P95 均低于 6 ms。
+在原项目基础上增加：
 
-**🔒 本地优先，文件归你。** 没有账号，没有云端，默认不联网。文档库就是电脑上的一个普通文件夹，每篇笔记是一个 XML 文件。用 Git、iCloud、坚果云或任何同步工具管理都可以，哪天不用了，文件也还在。
-
-**📝 兼容飞书 DocxXML，完整的富文本编辑器。** 笔记直接以飞书文档的 DocxXML 格式保存，从飞书复制粘贴、导入导出都能保留结构。标题、待办、表格、分栏、高亮块、代码、公式、图片和附件，写文档常用的块都有。
+- **🐧 Linux 适配**：X11 / Wayland 桌面可用，提供 Linux x86_64 预编译包。
+- **📤 「下载为 → 文本 / PDF」导出**：整篇笔记可导出为纯文本；Linux 下通过本机 Chromium / Chrome 无头渲染导出 PDF（可用 `QUIET_MD_BROWSER` 指定浏览器路径）。
+- **🔄 FTP / SFTP / SMB / S3 双向增量同步**：四种协议**独立配置、可同时启用**，各自记录同步状态；支持自动同步与手动立即同步，带冲突处理。
+- **🔑 密码默认掩码**：同步配置中的密码 / 密钥默认以 `•` 显示，可点「显示 / 隐藏」切换。
+- **📥 纯文本导入**：除 Markdown 和飞书 DocxXML 外，支持 `txt / log / csv / sql` 等 15 种纯文本扩展名，内容原样保留为代码块。
 
 ## 下载
 
-<p align="center">
-  <a href="https://download.quiet.md/latest/quiet-md-macos-arm64.zip"><img src="docs/images/download-macos.svg" height="56" alt="下载 macOS 版"></a>
-  &nbsp;
-  <a href="https://download.quiet.md/latest/quiet-md-windows-x64-setup.exe"><img src="docs/images/download-windows.svg" height="56" alt="下载 Windows 版"></a>
-</p>
+| 平台 | 下载 | 系统要求 |
+|---|---|---|
+| **Windows**（x64） | [quiet_md-0.1.3-windows-x86_64-r4.zip](https://github.com/itlaborer/quiet-md/raw/master/release/quiet_md-0.1.3-windows-x86_64-r4.zip)（约 25.6 MB） | Windows 10 2004 及以上 |
+| **Linux**（x86_64） | [quiet_md-0.1.3-linux-x86_64-r4.tar.xz](https://github.com/itlaborer/quiet-md/raw/master/release/quiet_md-0.1.3-linux-x86_64-r4.tar.xz)（约 16.5 MB） | 带 X11 / Wayland 的桌面环境 |
 
-| 平台 | 系统要求 |
-|---|---|
-| **macOS**（Apple Silicon） | macOS 13 及以上 |
-| **Windows**（x64） | Windows 10 2004 及以上 |
-
-- **macOS**：解压后把 `quiet.md.app` 拖进「应用程序」。安装包已签名并通过 Apple 公证。
-- **Windows**：运行安装程序，默认只装到当前用户目录，卸载不会删除笔记。如果首次运行出现 SmartScreen 提示，点「更多信息 → 仍要运行」即可。
-
-也可以在官网 [quiet.md](https://quiet.md) 下载。所有版本和 SHA-256 校验值见 [GitHub Releases](https://github.com/s1dashu/quiet-md/releases)。Intel Mac 暂无安装包，可以[从源码构建](CONTRIBUTING.md#从源码构建)。
+- SHA-256 校验值见 [release/SHA256SUMS.txt](release/SHA256SUMS.txt)。
+- 也可以从[下载站](https://quiet-md-downloads-2pu2wl7hg18.qoder.zone)获取。
+- **Windows**：解压后运行 `quiet_md.exe`。如果首次运行出现 SmartScreen 提示，点「更多信息 → 仍要运行」即可。
+- **Linux**：解压后运行 `./quiet_md`；PDF 导出需要本机装有 Chromium / Chrome。
+- **macOS**：本仓库不提供 macOS 构建，请到[原项目](https://github.com/s1dashu/quiet-md/releases/latest)下载（不含上述新增功能）。
 
 首次启动会在空文档库里放一套「开始指南」，十分钟带你过一遍主要功能；已有的笔记不会被覆盖。
+
+## 功能
+
+- **编辑**：标题、有序 / 无序列表、待办、引用、代码块（语法高亮）、LaTeX 公式、表格（可合并单元格）、高亮块、分栏、图片、附件、封面。支持 `#`、`-`、`[]`、`>` 等 Markdown 快捷输入和 `/` 斜杠菜单。
+- **整理**：文档树、置顶、收藏、全文搜索、回收站。
+- **导入导出**：导入 Markdown、飞书 DocxXML 和 txt / log / csv / sql 等纯文本；导出 Markdown、文本、PDF，也可以直接打印。从飞书或网页粘贴时保留结构。
+- **同步**：FTP / SFTP / SMB / S3 双向增量同步，四协议独立配置、可同时启用，支持自动同步；密码默认掩码显示。
+- **快捷键**：按 `⌘ /` 查看全部快捷键，每一个都能改。
+- **主题**：内置 Craft、飞书、Notion、Obsidian 四套风格，也可以用 CSS 自己写，见 [docs/THEMES.md](docs/THEMES.md)。
 
 ## 性能
 
@@ -75,21 +74,7 @@
 
 120 Hz 屏幕每帧的预算是 8.3 ms，百万字文档下的 P95 也留有余量。
 
-| | |
-|---|---|
-| macOS 安装包 | 约 18 MB |
-| Windows 安装包 | 约 14 MB |
-| 运行时 | 无 WebView、无 Electron、无后台服务 |
-
-<sub>Apple M5 Pro / 48 GiB，macOS 26.5，Release 构建。测试方法和复现脚本见 [docs/PERFORMANCE.md](docs/PERFORMANCE.md)。</sub>
-
-## 功能
-
-- **编辑**：标题、有序 / 无序列表、待办、引用、代码块（语法高亮）、LaTeX 公式、表格（可合并单元格）、高亮块、分栏、图片、附件、封面。支持 `#`、`-`、`[]`、`>` 等 Markdown 快捷输入和 `/` 斜杠菜单。
-- **整理**：文档树、置顶、收藏、全文搜索、回收站。
-- **导入导出**：导入 Markdown 和飞书 DocxXML；导出 Markdown、PDF，也可以直接打印。从飞书或网页粘贴时保留结构。
-- **快捷键**：按 `⌘ /` 查看全部快捷键，每一个都能改。
-- **主题**：内置 Craft、飞书、Notion、Obsidian 四套风格，也可以用 CSS 自己写，见 [docs/THEMES.md](docs/THEMES.md)。
+<sub>数据来自原项目：Apple M5 Pro / 48 GiB，macOS 26.5，Release 构建。测试方法和复现脚本见 [docs/PERFORMANCE.md](docs/PERFORMANCE.md)。</sub>
 
 ## 你的文件在哪
 
@@ -99,13 +84,11 @@
 
 ## 参与开发
 
-quiet.md 还在 Beta，有很多可以一起做的事：修 bug、补功能、适配更多平台。欢迎提 issue 和 PR。
-
 从源码构建、测试和打包见 [CONTRIBUTING.md](CONTRIBUTING.md)，代码结构见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
 ## 许可
 
-代码使用 [MIT](LICENSE) 许可。第三方代码、字体和素材见 [THIRD_PARTY.md](THIRD_PARTY.md)。
+代码使用 [MIT](LICENSE) 许可（原项目 © s1dashu）。第三方代码、字体和素材见 [THIRD_PARTY.md](THIRD_PARTY.md)。
 
 以下内容不在 MIT 范围内，fork 时请替换：
 
