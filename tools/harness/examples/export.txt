@@ -1,0 +1,38 @@
+# 下载为 → 文本 / PDF, end to end: type a small doc, then answer each save
+# dialog with `pick` and click the menu row. Needs an EMPTY library (the app
+# seeds one Untitled doc) and a 1280×800 window; on Linux run it directly:
+#   DISPLAY=:0 QUIET_MD_HOME=<empty dir> FDL_SCRIPT=this ./target/release/quiet_md
+# PDF needs a headless Chromium on PATH (or QUIET_MD_BROWSER); without one the
+# PDF row is absent and only 文本 is exported.
+resize 1280 800
+# Park the pointer on blank space first: the real mouse position leaks in as hover.
+move 300 600
+wait 2500
+click 368 128
+type 导出验证
+key enter
+type 第一段：中文与 English 混排。
+key enter
+type 第二段：列表与代码见下。
+key enter
+type - 列表项一
+key enter
+type - 列表项二
+wait 500
+# 「…」→ 下载为 → 文本. Give the submenu time to settle before clicking a row.
+pick /tmp/fdl-export.txt
+click 1184 29
+wait 1200
+move 1098 297
+wait 1200
+click 929 360
+wait 3000
+# Same menu, PDF row; the headless browser needs a few seconds to lay out A4.
+pick /tmp/fdl-export.pdf
+click 1184 29
+wait 1200
+move 1098 297
+wait 1200
+click 929 296
+wait 20000
+quit

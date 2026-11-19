@@ -1,0 +1,27 @@
+[package]
+name = "fdl_sync"
+version = "0.1.3"
+edition = "2024"
+description = "Remote sync for the quiet.md library (FTP/FTPS, SFTP, SMB, S3)"
+license = "MIT"
+readme = "../../README.md"
+authors = ["s1dashu"]
+
+[dependencies]
+anyhow = "1.0.104"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
+# Plain FTP and explicit FTPS (native TLS: OpenSSL on Linux, SChannel on Windows).
+suppaftp = { version = "12.2.1", default-features = false, features = ["native-tls"] }
+# Pure-Rust SSH/SFTP, so the Windows cross build needs no OpenSSL.
+russh = { version = "0.65.1", default-features = false, features = ["ring", "rsa", "flate2"] }
+russh-sftp = "3.0.1"
+# Pure-Rust SMB2/3 client.
+smb2 = "0.43.0"
+# S3 in its blocking flavour; native TLS (OpenSSL on Linux, SChannel on Windows).
+rust-s3 = { version = "0.38.0", default-features = false, features = ["sync-native-tls", "fail-on-err"] }
+tokio = { version = "1", features = ["rt", "net", "time", "io-util"] }
+
+[lints]
+workspace = true
