@@ -62,7 +62,7 @@ fn file_name(doc: &Document) -> String {
 }
 
 /// The modal mask (the window dimmed) and its dialog.
-fn mask(id: &'static str, dialog: impl IntoElement, close: impl Fn(&mut Workspace, &mut Context<Workspace>) + 'static, cx: &mut Context<Workspace>) -> AnyElement {
+pub(crate) fn mask(id: &'static str, dialog: impl IntoElement, close: impl Fn(&mut Workspace, &mut Context<Workspace>) + 'static, cx: &mut Context<Workspace>) -> AnyElement {
     deferred(
         div()
             .id(id)
@@ -172,14 +172,14 @@ pub fn plain_document(path: &Path) -> std::io::Result<Document> {
 }
 
 impl Workspace {
-    fn close_menus(&mut self) {
+    pub(crate) fn close_menus(&mut self) {
         self.doc_menu = false;
         self.doc_sub = None;
         self.row_menu = None;
     }
 
     /// Titles of `id`'s child pages, for its 子页面列表 blocks.
-    fn sub_page_titles(&self, id: &str) -> Vec<String> {
+    pub(crate) fn sub_page_titles(&self, id: &str) -> Vec<String> {
         crate::tree::Tree::new(&self.entries).children(Some(id)).iter().map(|e| e.title.clone()).collect()
     }
 

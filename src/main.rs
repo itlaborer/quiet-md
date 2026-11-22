@@ -22,6 +22,7 @@ mod native_header;
 #[path = "native_header_fallback.rs"]
 mod native_header;
 mod printing;
+mod publish_ui;
 mod search;
 mod sidebar;
 mod settings;

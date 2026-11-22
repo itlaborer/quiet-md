@@ -213,6 +213,12 @@ pub struct Workspace {
     pub(crate) sync_rev: u64,
     /// The launch sync ran (or was skipped); later syncs wait for a change.
     pub(crate) autosynced: bool,
+    /// 设置 → 发布的配置、按目标分组的输入框和轮询计数。
+    pub publish_settings: fdl_publish::Settings,
+    pub publish_fields: Vec<crate::publish_ui::PublishFields>,
+    pub(crate) publish_rev: u64,
+    /// 打开的发布对话框。
+    pub publish_dialog: Option<crate::publish_ui::PublishDialog>,
     native_sidebar: crate::native_header::NativeSidebar,
     pub store: SharedStore,
     pub entries: Vec<Entry>,
@@ -329,6 +335,14 @@ impl Workspace {
             sync_fields.push(f);
             sync_subs.extend(subs);
         }
+        let publish_settings = fdl_publish::Settings::load(&crate::store::Store::root_dir());
+        let mut publish_fields = Vec::new();
+        let mut publish_subs = Vec::new();
+        for kind in fdl_publish::Kind::ALL {
+            let (f, ss) = crate::publish_ui::PublishFields::new(kind, &publish_settings, cx);
+            publish_fields.push(f);
+            publish_subs.extend(ss);
+        }
         let mut subs = vec![
             cx.subscribe(&settings_filter, |_, _, ev: &TextFieldEvent, cx| if matches!(ev, TextFieldEvent::Changed) { cx.notify(); }),
             cx.observe_window_bounds(window, |this, window, cx| crate::quick_note::remember(window, this.quick_note, cx)),
@@ -363,6 +377,7 @@ impl Workspace {
             }),
         ];
         subs.extend(sync_subs);
+        subs.extend(publish_subs);
         let this = cx.weak_entity();
         window.on_window_should_close(cx, move |_, cx| {
             crate::quick_note::persist(cx);
@@ -388,7 +403,8 @@ impl Workspace {
         cx.spawn(async |this, cx| loop {
             cx.background_executor().timer(Duration::from_millis(400)).await;
             let rev = crate::sync_ui::revision();
-            if this.update(cx, |w, cx| w.sync_poll(rev, cx)).is_err() {
+            let pub_rev = crate::publish_ui::revision();
+            if this.update(cx, |w, cx| { w.sync_poll(rev, cx); w.publish_poll(pub_rev, cx); }).is_err() {
                 break;
             }
         })
@@ -417,6 +433,10 @@ impl Workspace {
             sync_fields,
             sync_rev: 0,
             autosynced: false,
+            publish_settings,
+            publish_fields,
+            publish_rev: 0,
+            publish_dialog: None,
             store,
             entries,
             current: None,
@@ -1290,6 +1310,7 @@ impl Render for Workspace {
         };
         let move_dlg = self.render_move_dialog(cx);
         let export_md = self.render_export_md(cx);
+        let publish_dlg = self.render_publish(cx);
         // Only the note stands out: a white plane flush with the window's top,
         // right and bottom edges. The sidebar sits sunken on the window
         // surface beside it; the change of value is the only line between
@@ -1361,10 +1382,11 @@ impl Render for Workspace {
             .capture_key_down(cx.listener(|w, ev: &KeyDownEvent, _, cx| {
                 if w.record_shortcut(ev, cx) { return; }
                 // Esc cancels a confirmation dialog.
-                if ev.keystroke.key == "escape" && (w.confirm.is_some() || w.export_md.is_some()) {
+                if ev.keystroke.key == "escape" && (w.confirm.is_some() || w.export_md.is_some() || w.publish_dialog.is_some()) {
                     w.confirm = None;
                     w.after_save = None;
                     w.export_md = None;
+                    w.publish_dialog = None;
                     cx.stop_propagation();
                     cx.notify();
                     return;
@@ -1398,6 +1420,7 @@ impl Render for Workspace {
             .children(confirm)
             .children(move_dlg)
             .children(export_md)
+            .children(publish_dlg)
             .children(search)
             .children(resize_overlay)
             .children(toast)

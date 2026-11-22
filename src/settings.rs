@@ -130,7 +130,7 @@ pub(crate) fn watch_themes(cx: &mut Context<Workspace>) {
 // ---- the view
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub enum Page { #[default] General, Appearance, Shortcuts, Library, Sync, About }
+pub enum Page { #[default] General, Appearance, Shortcuts, Library, Sync, Publish, About }
 
 impl Page {
     fn title(self) -> &'static str {
@@ -140,6 +140,7 @@ impl Page {
             Page::Shortcuts => tr("快捷键", "Shortcuts"),
             Page::Library => tr("文档库", "Documents"),
             Page::Sync => tr("同步", "Sync"),
+            Page::Publish => tr("发布", "Publish"),
             Page::About => tr("关于", "About"),
         }
     }
@@ -150,14 +151,15 @@ impl Page {
             Page::Shortcuts => "keyboard",
             Page::Library => "storage",
             Page::Sync => "folder-input",
+            Page::Publish => "export",
             Page::About => "info",
         }
     }
 }
 
-/// The sidebar list, one evenly spaced run (six rows need no unlabelled
-/// groups); `None` is 回收站 (its own view, shown with this sidebar).
-const NAV: [Option<Page>; 7] = [Some(Page::General), Some(Page::Appearance), Some(Page::Shortcuts), Some(Page::Library), Some(Page::Sync), None, Some(Page::About)];
+/// The sidebar list, one evenly spaced run; `None` is 回收站 (its own view,
+/// shown with this sidebar).
+const NAV: [Option<Page>; 8] = [Some(Page::General), Some(Page::Appearance), Some(Page::Shortcuts), Some(Page::Library), Some(Page::Sync), Some(Page::Publish), None, Some(Page::About)];
 
 // ---- controls (switch on the accent, 30pt buttons, grouped rows)
 
@@ -543,6 +545,7 @@ impl Workspace {
             Page::Shortcuts => self.shortcut_settings(cx),
             Page::Library => self.library_page(cx),
             Page::Sync => self.sync_page(cx),
+            Page::Publish => self.publish_page(cx),
             Page::About => self.about_page(),
         };
         div().flex_1().min_w_0().h_full().flex().flex_col().bg(Theme::bg_body()).text_color(Theme::text()).font_family(theme::UI_FONT)

@@ -137,7 +137,7 @@ impl Workspace {
             })
         };
         let sub_bounds = self.doc_sub_bounds.clone();
-        let (pin_id, star_id, mv_id, del_id, dup_id, print_id) = (id.clone(), id.clone(), id.clone(), id.clone(), id.clone(), id.clone());
+        let (pin_id, star_id, mv_id, del_id, dup_id, print_id, pub_id) = (id.clone(), id.clone(), id.clone(), id.clone(), id.clone(), id.clone(), id.clone());
         let menu = popover()
             .id("doc-menu")
             .occlude()
@@ -198,6 +198,11 @@ impl Workspace {
             .child(
                 menu_item("dm-download", "export", crate::settings::text("下载为"), true, sub == Some(DocSub::Download))
                     .on_hover(hover_sub(Some(DocSub::Download))),
+            )
+            .child(
+                menu_item("dm-publish", "export", crate::settings::tr("发布到…", "Publish to…"), false, false)
+                    .on_hover(hover_sub(None))
+                    .on_click(cx.listener(move |w, _, _, cx| w.open_publish(&pub_id, cx))),
             )
             .child(divider())
             .when(crate::printing::SUPPORTED, |d| d.child(
@@ -268,7 +273,7 @@ impl Workspace {
                 },
             )),
             Some(DocSub::More) => Some((
-                if crate::printing::SUPPORTED { item_top(9, 6) } else { item_top(8, 5) } - 1. - PAD,
+                if crate::printing::SUPPORTED { item_top(10, 6) } else { item_top(9, 5) } - 1. - PAD,
                 popover()
                     .id("dm-more-menu")
                     .occlude()

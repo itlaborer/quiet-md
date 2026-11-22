@@ -729,6 +729,7 @@ impl Workspace {
         let (dup, mv, pin, star, dl, ren, del) = (m.id.clone(), m.id.clone(), m.id.clone(), m.id.clone(), m.id.clone(), m.id.clone(), m.id.clone());
         let pdf = m.id.clone();
         let txt = m.id.clone();
+        let pub_id = m.id.clone();
         let new_window = m.id.clone();
         let sub_bounds = self.row_sub_bounds.clone();
         // The row menu leaves out the cloud entries 在新标签页打开, 分享,
@@ -783,6 +784,11 @@ impl Workspace {
                     .on_hover(set_sub(true)),
             )
             .child(
+                item("rm-publish", "export", crate::settings::tr("发布到…", "Publish to…"))
+                    .on_hover(set_sub(false))
+                    .on_click(cx.listener(move |w, _, _, cx| w.open_publish(&pub_id, cx))),
+            )
+            .child(
                 item("rm-rename", "square-pen", crate::settings::text("重命名"))
                     .on_hover(set_sub(false))
                     .on_click(cx.listener(move |w, _, window, cx| w.start_rename(&ren, window, cx))),
@@ -794,7 +800,7 @@ impl Workspace {
                     .on_click(cx.listener(move |w, _, _, cx| w.ask_delete(&del, cx))),
             );
         let vh = f32::from(window.viewport_size().height);
-        let menu_h = row_menu_height(8, 2);
+        let menu_h = row_menu_height(9, 2);
         // From the "…" button: hang 2px below it, or sit 2px above it when
         // there's no room below. From a right-click: at the pointer.
         let (origin, corner) = if m.pos.x < px(0.) {
