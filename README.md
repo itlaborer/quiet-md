@@ -43,8 +43,8 @@
 
 | 平台 | 下载 | 系统要求 |
 |---|---|---|
-| **Windows**（x64） | [quiet_md-0.1.3-windows-x86_64-r4.zip](https://github.com/itlaborer/quiet-md/raw/master/release/quiet_md-0.1.3-windows-x86_64-r4.zip)（约 25.6 MB） | Windows 10 2004 及以上 |
-| **Linux**（x86_64） | [quiet_md-0.1.3-linux-x86_64-r4.tar.xz](https://github.com/itlaborer/quiet-md/raw/master/release/quiet_md-0.1.3-linux-x86_64-r4.tar.xz)（约 16.5 MB） | 带 X11 / Wayland 的桌面环境 |
+| **Windows**（x64） | [quiet_md-0.1.3-windows-x86_64-r5.zip](https://github.com/itlaborer/quiet-md/raw/master/release/quiet_md-0.1.3-windows-x86_64-r5.zip)（约 26.6 MB） | Windows 10 2004 及以上 |
+| **Linux**（x86_64） | [quiet_md-0.1.3-linux-x86_64-r5.tar.xz](https://github.com/itlaborer/quiet-md/raw/master/release/quiet_md-0.1.3-linux-x86_64-r5.tar.xz)（约 18.5 MB） | 带 X11 / Wayland 的桌面环境 |
 
 - SHA-256 校验值见 [release/SHA256SUMS.txt](release/SHA256SUMS.txt)。
 - 也可以从[下载站](https://quiet-md-downloads-2pu2wl7hg18.qoder.zone)获取。
