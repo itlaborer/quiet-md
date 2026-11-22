@@ -1,6 +1,7 @@
 name: Release
 
-# 推送 v* 标签时，用仓库 release/ 目录下已构建好的产物创建 GitHub Release。
+# 推送 v* 标签时，在 Linux runner 上原生编译 Linux 产物、交叉编译 Windows
+# 产物，打包后创建 GitHub Release 并上传。
 on:
   push:
     tags: ["v*"]
@@ -9,17 +10,83 @@ permissions:
   contents: write
 
 jobs:
-  publish:
-    name: 发布产物
+  release:
+    name: 编译并发布产物
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: 校验产物校验和
-        run: cd release && sha256sum -c SHA256SUMS.txt
+      - name: Install Linux native build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libssl-dev libx11-dev libwayland-dev libxkbcommon-dev libfontconfig1-dev
+
+      - name: Show Rust toolchain
+        run: rustup show
+
+      - name: Build Linux (x86_64, native)
+        run: cargo build --release --locked -p quiet_md
+
+      - name: Install mingw-w64 + Windows GNU target
+        run: |
+          sudo apt-get install -y --no-install-recommends \
+            gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64
+          rustup target add x86_64-pc-windows-gnu
+
+      - name: Build Windows (x86_64, cross from Linux)
+        run: cargo build --release --locked -p quiet_md --target x86_64-pc-windows-gnu
+
+      - name: Package
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          tag=${GITHUB_REF_NAME#v}
+          suffix=${tag#${version}-}
+          [ -n "$suffix" ] || suffix=$tag
+          mkdir -p release-artifacts
+          work_linux=$(mktemp -d)
+          work_win=$(mktemp -d)
+
+          cp target/release/quiet_md "$work_linux/quiet_md"
+          cat > "$work_linux/README.txt" <<'EOF'
+          quiet.md VERSION (Linux x86_64)
+
+          1. 解压后运行 ./quiet_md（需要 X11 / Wayland 图形环境）。
+          2. 首次启动会在用户文档目录创建 Quiet.md 笔记库。
+          3. 导出 PDF 需要系统里有 Chromium / Chrome / Edge 任一浏览器（可用 QUIET_MD_BROWSER 指定路径）。
+          4. 设置 → 同步：FTP/FTPS、SFTP、SMB、S3 各自独立配置，可同时启用多个，同步时依次同步所有已启用协议；连接信息保存在笔记库的 sync.json。
+          5. 密码 / Secret Key 默认掩码显示，点“显示 / 隐藏”临时查看。
+          6. 导入支持 Markdown / XML 及 txt、log、csv、sql 等纯文本（原样保留为代码块）。
+          7. 本构建动态链接 libssl.so.3（OpenSSL 3），用于 FTP/S3 的 TLS。
+          8. 设置 → 发布：可将当前笔记发布到 GitHub 仓库、微信公众号草稿、今日头条 / 百家号等平台，配置保存在笔记库的 publish.json。
+          EOF
+          sed -i "s/VERSION/$version/" "$work_linux/README.txt"
+          tar -cJf "release-artifacts/quiet_md-${version}-linux-x86_64-${suffix}.tar.xz" -C "$work_linux" quiet_md README.txt
+          rm -rf "$work_linux"
+
+          cp target/x86_64-pc-windows-gnu/release/quiet_md.exe "$work_win/quiet_md.exe"
+          cat > "$work_win/README.txt" <<'EOF'
+          quiet.md VERSION (Windows x86_64)
+
+          1. 解压到任意目录，双击 quiet_md.exe 运行。
+          2. 若 SmartScreen 提示“未知发布者”，选择“仍要运行”（未做代码签名）。
+          3. 首次启动会在用户文档目录创建 Quiet.md 笔记库。
+          4. 导出 PDF 使用系统自带的 WebView/浏览器能力，无需额外安装。
+          5. 设置 → 同步：FTP/FTPS、SFTP、SMB、S3 各自独立配置，可同时启用多个，同步时依次同步所有已启用协议；连接信息保存在笔记库的 sync.json。
+          6. 密码 / Secret Key 默认掩码显示，点“显示 / 隐藏”临时查看。
+          7. 导入支持 Markdown / XML 及 txt、log、csv、sql 等纯文本（原样保留为代码块）。
+          8. 设置 → 发布：可将当前笔记发布到 GitHub 仓库、微信公众号草稿、今日头条 / 百家号等平台，配置保存在笔记库的 publish.json。
+          EOF
+          sed -i "s/VERSION/$version/" "$work_win/README.txt"
+          (cd "$work_win" && zip -9 -q "$GITHUB_WORKSPACE/release-artifacts/quiet_md-${version}-windows-x86_64-${suffix}.zip" quiet_md.exe README.txt)
+          rm -rf "$work_win"
+
+          (cd release-artifacts && sha256sum quiet_md-*.zip quiet_md-*.tar.xz > SHA256SUMS.txt)
+          ls -lh release-artifacts
 
       - name: 创建 Release 并上传产物
         uses: softprops/action-gh-release@v2
         with:
-          files: release/*
+          files: release-artifacts/*
           generate_release_notes: true
